@@ -16,10 +16,9 @@ const theme = {
 };
 
 export const ChatbotComponent = () => {
-  const [selectedExchange, setSelectedExchange] = useState(null);
   const [stockData, setStockData] = useState(null);
   const [steps, setSteps] = useState([]);
-  
+
   useEffect(() => {
     try {
       if (!stock || !stock.stocks || stock.stocks.length === 0) {
@@ -35,17 +34,25 @@ export const ChatbotComponent = () => {
   useEffect(() => {
     const buildSteps = () => {
       if (!stockData || stockData.length === 0) {
-        return [{
-          id: "1",
-          message: "Sorry, no stock data is available at the moment. Please try again later.",
-          trigger: "end"
-        }];
+        return [
+          {
+            id: "1",
+            message:
+              " No stock data is available at the moment. Please try again later.",
+            trigger: "end",
+          },
+        ];
       }
 
       const steps = [
         {
+          id:"0",
+          message:"Hello! Welcome to LSEG. I am here to help you",
+          trigger:"1"
+        },
+        {
           id: "1",
-          message: "Please select a stock exchange:",
+          message: "Please select a Stock Exchange",
           trigger: "2",
         },
         {
@@ -79,19 +86,16 @@ export const ChatbotComponent = () => {
         id: "4",
         message: ({ previousValue }) => {
           let selectedStock;
-          let selectedExchangeData = null;
           stockData.forEach((exchange) => {
             exchange.topStocks.forEach((stock) => {
               if (stock.code === previousValue) {
                 selectedStock = { ...stock };
-                selectedExchangeData = exchange;
               }
             });
           });
 
           if (selectedStock) {
-            setSelectedExchange(selectedExchangeData);
-            return `The price of ${selectedStock.stockName} is $${selectedStock.price}. Please select an option.`;
+            return `Stock price of ${selectedStock.stockName} is $${selectedStock.price}. Please select an option.`;
           }
           return "Invalid stock selection. Please try again.";
         },
@@ -116,10 +120,10 @@ export const ChatbotComponent = () => {
                 if (filteredData.id) {
                   return filteredData.id;
                 }
-                return "2"; 
+                return "2";
               } catch (error) {
                 console.error("Error selecting stock menu:", error);
-                return "2"; 
+                return "2";
               }
             },
           },
@@ -138,7 +142,7 @@ export const ChatbotComponent = () => {
       const generatedSteps = buildSteps();
       setSteps(generatedSteps);
     }
-  }, [stockData, selectedExchange]);
+  }, [stockData]);
 
   return (
     <>
@@ -150,11 +154,13 @@ export const ChatbotComponent = () => {
             hideInput="false"
             width="900px"
             steps={steps}
-            onError={(error) => console.error("Chatbot encountered an error:", error)}
+            onError={(error) =>
+              console.error("Chatbot encountered an error:", error)
+            }
           />
         </ThemeProvider>
       ) : (
-        <div>Loading chatbot...</div>
+        <></>
       )}
     </>
   );
